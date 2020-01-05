@@ -52,7 +52,7 @@ class RecipePage extends Component {
 
     return axios({
       method: 'post',
-      url: 'http://localhost:5000/graphql',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/graphql',
       headers: {
         // 'Authorization': `public!_*_!${token}`,
         'Content-Type': 'application/json'
@@ -115,7 +115,7 @@ class RecipePage extends Component {
 
     return axios({
       method: 'post',
-      url: 'http://localhost:5000/graphql',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/graphql',
       headers: {
         'Authorization': `public!_*_!${token}`,
         'Content-Type': 'application/json'
@@ -169,6 +169,7 @@ class RecipePage extends Component {
               _id
               rate
               comment
+              recipeId
               creator{
                 _id
                 name
@@ -180,7 +181,7 @@ class RecipePage extends Component {
 
     return axios({
       method: 'post',
-      url: 'http://localhost:5000/graphql',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/graphql',
       headers: {
         'Content-Type': 'application/json'
       },

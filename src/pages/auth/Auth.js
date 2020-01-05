@@ -57,7 +57,7 @@ class AuthPage extends Component {
     console.log('this.state.isSignIn', this.state.isSignIn);
     return axios({
       method: 'post',
-      url: 'http://localhost:5000/graphql',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/graphql',
       headers: {
         'Authorization': '',
         'Content-Type': 'application/json'

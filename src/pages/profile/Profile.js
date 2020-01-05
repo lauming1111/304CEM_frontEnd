@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import AuthContext from '../auth/Auth-context';
-import Spinner from '../../components/loading/Spinner';
 
 class Profile extends Component {
   static contextType = AuthContext;
@@ -23,7 +22,7 @@ class Profile extends Component {
   }
 
   getProfile = () => {
-    return axios.get(`http://localhost:5000/userid/${this.context.userId}`)
+    return axios.get(`http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/userid/${this.context.userId}`)
       .then(r => {
         if (!r.statusCode === 200 || r.statusCode === 201) {
           throw new Error('fetch error');
@@ -47,7 +46,7 @@ class Profile extends Component {
       new: this.state.newUserName
     };
 
-    return axios.get(`http://localhost:5000/newUserName/${JSON.stringify(data)}`)
+    return axios.get(`http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/newUserName/${JSON.stringify(data)}`)
       .then(r => {
         console.log(r);
         if (!r.statusCode === 200 || r.statusCode === 201) {

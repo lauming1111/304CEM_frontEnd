@@ -1,7 +1,6 @@
 import React from 'react';
 import './recipeItem.css';
 import axios from 'axios';
-import Comment from '../comment/Comment';
 
 const RecipeItem = (props) => {
   const recipe = props.data;
@@ -17,7 +16,7 @@ const RecipeItem = (props) => {
     };
     return axios({
       method: 'delete',
-      url: 'http://localhost:5000/deleteRecipe',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/deleteRecipe',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -38,7 +37,7 @@ const RecipeItem = (props) => {
     };
     return axios({
       method: 'put',
-      url: 'http://localhost:5000/updateRecipe',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/updateRecipe',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -70,7 +69,7 @@ const RecipeItem = (props) => {
     console.log(JSON.stringify(body, null, 2));
     return axios({
       method: 'POST',
-      url: 'http://localhost:5000/graphql',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/graphql',
       headers: {
         'Authorization': `public!_*_!${props.token}`,
         'Content-Type': 'application/json'
@@ -93,7 +92,7 @@ const RecipeItem = (props) => {
     console.log(recipeId);
     return axios({
       method: 'delete',
-      url: 'http://localhost:5000/deleteComment',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/deleteComment',
       headers: {
         'Authorization': `public!_*_!${props.token}`,
         'Content-Type': 'application/json'
@@ -121,7 +120,7 @@ const RecipeItem = (props) => {
     };
     return axios({
       method: 'put',
-      url: 'http://localhost:5000/updateComment',
+      url: 'http://ec2-54-210-118-13.compute-1.amazonaws.com:5000/updateComment',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -145,44 +144,51 @@ const RecipeItem = (props) => {
           <p>Created by: {recipe.createdTimestamp}</p>
           <p>Last update time: {recipe.updateTimestamp}</p>
         </div>
+        {
+          userId === recipe.creator._id &&
+          <div>
+            <input onChange={(e) => {
+              temp = e.target.value;
+            }}/>
+            <br/>
+            <button className={'btn'} onClick={() => handleUpdateRecipe(recipe._id, temp)}>Edit Recipe context</button>
+            <br/>
+            <button className={'btn'} onClick={() => handleDeleteRecipe(recipe._id)}>Delete</button>
+          </div>
+        }
       </div>
 
       < div className={'btn_list'}>
-        {userId === recipe.creator._id &&
-        <div>
-          <input onChange={(e) => {
-            temp = e.target.value;
-          }}/>
-          <button className={'btn'} onClick={() => handleUpdateRecipe(recipe._id, temp)}>Edit Recipe context</button>
-          <button className={'btn'} onClick={() => handleDeleteRecipe(recipe._id)}>Delete</button>
-        </div>
-        }
-
         <div>
           <ul>
             {
-              props.getComment ? props.getComment.map((r, index) => (
-                <li key={index}>
-                  <div>
-                    <p>Rate: {r.rate}</p>
-                    <p>Comment: {r.comment}</p>
-                    <p>Creator: {r.creator && r.creator.name}</p>
+              props.getComment ? props.getComment.map((r, index) => {
+                console.log(r.recipeId, recipe._id);
+                return (r.recipeId === recipe._id && <li key={index}>
+                    <div>
+                      <p>Rate: {r.rate}</p>
+                      <p>Comment: {r.comment}</p>
+                      <p>Creator: {r.creator && r.creator.name}</p>
 
-                    {r.creator && r.creator._id === userId && <input onChange={(e) => {
-                      tempUpdateComment = e.target.value;
-                    }}/>}
-                    {r.creator && r.creator._id === userId &&
-                    <button onClick={() => handleDeleteComment(r._id)}>Delete</button>}
-                    {r.creator && r.creator._id === userId &&
-                    <button onClick={() => handleUpdateComment(r._id, tempUpdateComment)}>update</button>}
-                  </div>
-                </li>
-              )) : <a>no comment</a>
+                      {r.creator && r.creator._id === userId && <input onChange={(e) => {
+                        tempUpdateComment = e.target.value;
+                      }}/>}
+                      <br/>
+                      {r.creator && r.creator._id === userId &&
+                      <button className={'btn'} onClick={() => handleDeleteComment(r._id)}>Delete</button>}
+                      <br/>
+                      {r.creator && r.creator._id === userId &&
+                      <button className={'btn'} onClick={() => handleUpdateComment(r._id, tempUpdateComment)}>update</button>}
+                    </div>
+                  </li>
+                );
+              }) : <a>no comment</a>
             }
           </ul>
           {userId && <input onChange={(e) => {
             tempComment = e.target.value;
           }}/>}
+          <br/>
           {userId && <button className={'btn'} onClick={() => handleCreateComment(recipe._id)}>add comment</button>}
         </div>
       </div>
