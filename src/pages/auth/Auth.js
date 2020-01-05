@@ -9,9 +9,10 @@ class AuthPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLogin: true,
-      massage: '',
+      isSignIn: false,
+      message: '',
     };
+    this.nameRef = React.createRef();
     this.emailRef = React.createRef();
     this.passwordRef = React.createRef();
   }
@@ -19,8 +20,9 @@ class AuthPage extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const email = this.emailRef.current.value;
+    const name = (!this.state.isSignIn && this.nameRef.current.value) || null;
     const password = this.passwordRef.current.value;
-
+    const encodedPassword = Buffer.from(password).toString('base64');
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
@@ -28,7 +30,7 @@ class AuthPage extends Component {
     const signUpRequest = {
       query: `
         mutation {
-          createUser(userInput: {name: "lm", email: "${email}", password: "${password}"}) {
+          createUser(userInput: {name: "${name}", email: "${email}", password: "${encodedPassword}"}) {
             name
             email
             password
@@ -41,8 +43,10 @@ class AuthPage extends Component {
     const signInRequest = {
       query: `
         query{
-          login(email:"${email}",password:"${password}"){
+          login(email:"${email}",password:"${encodedPassword}"){
             userId
+            email
+            name
             token
             tokenExpirationDate
           }
@@ -50,7 +54,7 @@ class AuthPage extends Component {
       `
     };
 
-
+    console.log('this.state.isSignIn', this.state.isSignIn);
     return axios({
       method: 'post',
       url: 'http://localhost:5000/graphql',
@@ -58,24 +62,32 @@ class AuthPage extends Component {
         'Authorization': '',
         'Content-Type': 'application/json'
       },
-      data: this.state.isLogin ? signUpRequest : signInRequest,
+      data: this.state.isSignIn ? signInRequest : signUpRequest,
     })
       .then((r) => {
+        if (r.data.errors ||
+          (r.data.errors && r.data.errors.length > 0)) {
+          this.setState({
+            message: r.data.errors[0].message
+          });
+        }
         if (r.status !== 200 && r.status !== 201) {
           throw new Error('Fail to create new user');
         }
-        console.log(JSON.stringify(r, null, 2));
+        console.log('r.data.data.login', JSON.stringify(r.data.data.login));
         if (r.data.data.login && r.data.data.login.token) {
+          // data field name
           this.context.login(
-            r.data.data.login.userId,
             r.data.data.login.token,
+            r.data.data.login.userId,
+            r.data.data.login.email,
+            r.data.data.login.name,
             r.data.data.login.tokenExpirationDate,
           );
         }
         if (r.data.data.createUser) {
-          this.setState({ massage: 'Create new user' });
+          this.setState({ message: 'Create new user successfully' });
         }
-
 
       })
       .catch((e) => {
@@ -85,20 +97,30 @@ class AuthPage extends Component {
   };
 
   handleSwitchMode = (e) => {
-    console.log(this.state.isLogin);
-    this.setState({
-      isLogin: false
-    });
+    console.log('isSignIn ' + this.state.isSignIn);
+    if (this.state.isSignIn) {
+      this.setState({
+        isSignIn: false
+      });
+    } else {
+      this.setState({
+        isSignIn: true
+      });
+    }
   };
 
   render() {
-    const message = `Switch to ${this.state.isLogin ? 'Sign Up' : 'Sign In'}`;
+    const message = `Switch to ${this.state.isSignIn ? 'Sign Up' : 'Sign In'}`;
     return (
       <div>
-        <a>{this.state.isLogin ? 'Sign Up' : 'Sign In'}</a>
+        <div className={'headline'}>{this.state.isSignIn ? 'Sign In' : 'Sign Up'}</div>
         <br/>
-        <a>{this.state.massage}</a>
         <form className={'auth-form'} onSubmit={this.handleSubmit}>
+          {!this.state.isSignIn && (<div className={'form-control'}>
+            <label htmlFor={'name'}>Username:</label>
+            <input type={'name'} id={'name'} ref={this.nameRef}/>
+          </div>)}
+
           <div className={'form-control'}>
             <label htmlFor={'email'}>Email:</label>
             <input type={'email'} id={'email'} ref={this.emailRef}/>
@@ -113,8 +135,9 @@ class AuthPage extends Component {
             <button type={'button'} onClick={this.handleSwitchMode}>{message}</button>
             <button type={'submit'}>Submit</button>
           </div>
-
         </form>
+
+        <a className={'message'}>{this.state.message}</a>
       </div>
     );
   }

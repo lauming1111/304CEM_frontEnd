@@ -8,14 +8,23 @@ const MainNav = props => (
     {(context) => <header className={'main-navigation'}>
       {/*{JSON.stringify(context)}*/}
       <div className={'main-navigation_logo'}>
-        <h1>Homework</h1>
+        <h1>Recipe Share</h1>
       </div>
       <nav className={'main-navigation_item'}>
         <ul>
-          {context.token &&
+
           <li>
-            <NavLink to={'/homeworks'}>Homework</NavLink>
+            <NavLink to={'/recipes'}>Recipes</NavLink>
           </li>
+          {
+            context.token && <li>
+              <NavLink to={`/userid/${context.userId}`}>Profile</NavLink>
+            </li>
+          }
+          {context.token &&
+          (<li>
+            <button onClick={context.logout}>Sign Out</button>
+          </li>)
           }
           {
             !context.token && <li>

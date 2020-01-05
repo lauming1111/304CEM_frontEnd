@@ -4,34 +4,13 @@
     margin: 5rem auto;
 }
 
-.form-control label,
-.form-control input {
-    width: 100%;
-    display: block;
+.message {
+    font-size: 3rem;
 }
 
-.form-control label {
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    margin-bottom: 1rem;
-}
-
-.form-action button {
-    background-color: #70b9ff;
-    font: inherit;
-    border: 1px solid #70b9ff;
-    border-radius: 3px;
-    padding: 0.5rem;
-    margin-right: 1rem;
-    box-shadow: 1px 1px 5px black;
-    color: white;
-    cursor: pointer;
-}
-
-.form-action button:hover,
-.form-action button:active {
-    background: #548ec2;
-    border-color: #548ec2;
+.headline {
+    display: flex;
+    font-size: 4rem;
+    text-align: center;
+    align-items: center;
 }

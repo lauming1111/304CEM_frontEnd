@@ -1,0 +1,31 @@
+.recipe-list_item {
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #7a4c7b;
+    display: flex;
+    justify-content: space-between;
+}
+
+.recipe-list_item h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: burlywood;
+
+}
+
+.recipe-list_item h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.recipe-list_item_div {
+    align-items: flex-end;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+}
+
+.btn_list {
+    display: flex;
+    margin-bottom: auto;
+    justify-content: space-between;
+}
