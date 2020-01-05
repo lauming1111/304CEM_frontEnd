@@ -11,8 +11,10 @@ class Profile extends Component {
     this.state = {
       profile: null,
       message: '',
+      newUserName: '',
       createdComments: [],
       createdRecipes: [],
+      success: ''
     };
   }
 
@@ -39,6 +41,26 @@ class Profile extends Component {
       });
   };
 
+  updateName = () => {
+    const data = {
+      id: this.context.userId,
+      new: this.state.newUserName
+    };
+
+    return axios.get(`http://localhost:5000/newUserName/${JSON.stringify(data)}`)
+      .then(r => {
+        console.log(r);
+        if (!r.statusCode === 200 || r.statusCode === 201) {
+          throw new Error('fetch error');
+        }
+        // const data = r.data;
+        this.setState({
+          success: 'Rename successfully'
+        });
+        this.getProfile();
+      });
+  };
+
   render() {
     return (
       <div>
@@ -54,22 +76,23 @@ class Profile extends Component {
             <li><p>Last updated time: {this.state.updateTimestamp}</p></li>
           </ul>
 
-          <h3>Your Recipes</h3>
+          <h3>Your Recipes History</h3>
           <ul>
             {
-              this.state.createdRecipes.map(r => <li>{r}</li>)
+              this.state.createdRecipes.map((r, index) => <li key={index}>{r}</li>)
             }
           </ul>
 
-          <h3>Your Comments</h3>
+          <h3>Your Comments History</h3>
           <ul>
             {
-              this.state.createdComments.map(r => <li>{r}</li>)
+              this.state.createdComments.map((r, index) => <li key={index}>{r}</li>)
             }
           </ul>
         </div>
-
-        <button className={'btn'} onClick={this.getProfile}>Refresh</button>
+        <p>{this.state.success}</p>
+        <input onChange={e => this.setState({ newUserName: e.target.value })}/>
+        <button className={'btn'} onClick={this.updateName}>Update your name</button>
       </div>
     );
   }

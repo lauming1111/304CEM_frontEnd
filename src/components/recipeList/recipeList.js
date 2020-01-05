@@ -7,7 +7,8 @@ const RecipeList = (props) => {
     <ul className={'recipe-list'}>
       {
         props.recipes.map(recipe => {
-          return <RecipeItem key={recipe._id} data={recipe} userId={props.auth} delete={props.delete}/>;
+          return <RecipeItem key={recipe._id} data={recipe} userId={props.auth} getRecipe={props.getRecipe}
+                             token={props.token} getComment={props.getComment} recallComment={props.recallComment}/>;
         })
       }
     </ul>

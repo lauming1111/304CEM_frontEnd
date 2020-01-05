@@ -7,7 +7,6 @@ import AuthContext from '../auth/Auth-context';
 import './recipe.css';
 import RecipeList from '../../components/recipeList/recipeList';
 import Spinner from '../../components/loading/Spinner';
-import CommentModal from '../../components/comment/Comment';
 
 class RecipePage extends Component {
   constructor(props) {
@@ -18,7 +17,6 @@ class RecipePage extends Component {
       comments: [],
       isLoading: false,
       message: '',
-      showComment: false
     };
     this.nameElRef = React.createRef();
     this.contextElRef = React.createRef();
@@ -28,7 +26,7 @@ class RecipePage extends Component {
 
   componentDidMount() {
     this.getRecipe();
-    this.getComment();
+    this.handleGetComment();
   }
 
   getRecipe = () => {
@@ -80,73 +78,11 @@ class RecipePage extends Component {
 
   };
 
-  getComment = () => {
-    const body = {
-      query: `
-          query {
-            comments {
-              _id
-              rate
-              comment
-              creator{
-                _id
-              }
-            }
-          }
-        `
-    };
-
-    return axios({
-      method: 'post',
-      url: 'http://localhost:5000/graphql',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: body,
-    })
-      .then((r => {
-        if (r.status !== 200 && r.status !== 201) {
-          throw new Error('Fail to get comments');
-        }
-        console.log(r);
-
-        this.setState({
-          comments: r.data.data.comments
-        });
-      }))
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
-  };
-
   handleCreateRecipe = () => {
     this.setState({
       creating: true
     });
   };
-
-  handleDeleteRecipe = (id) => {
-    console.log(id);
-    const body = {
-      query: `
-        mutation {
-          deleteRecipe(recipeId:  "${id}"){
-              _id
-          }
-        }
-`
-    };
-    return axios({
-      method: 'post',
-      url: 'http://localhost:5000/graphql',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: body,
-    }).then(() => this.getRecipe());
-  };
-
 
   handleModalConfirm = () => {
     this.setState({
@@ -156,7 +92,6 @@ class RecipePage extends Component {
     const name = this.nameElRef.current.value;
     const recipeContext = this.contextElRef.current.value;
     const token = this.context.token;
-    console.log('1111' + token, JSON.stringify(this.context));
     if (name.trim().length === 0) {
       throw new Error('Cannot add null');
     }
@@ -226,10 +161,48 @@ class RecipePage extends Component {
 
   };
 
+  handleGetComment = () => {
+    const body = {
+      query: `
+          query {
+            comments {
+              _id
+              rate
+              comment
+              creator{
+                _id
+                name
+              }
+            }
+          }
+        `
+    };
+
+    return axios({
+      method: 'post',
+      url: 'http://localhost:5000/graphql',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: body,
+    })
+      .then((r => {
+        if (r.status !== 200 && r.status !== 201) {
+          throw new Error('Fail to get comments');
+        }
+        console.log(r);
+        this.setState({
+          comments: r.data.data.comments
+        });
+      }))
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
+  };
   handleModalCancel = () => {
     this.setState({
       creating: false,
-      showComment: false,
     });
   };
 
@@ -260,19 +233,6 @@ class RecipePage extends Component {
           </form>
         </Modal>}
 
-        <button className={'btn'} onClick={() => this.setState({
-          showComment: true,
-        })}>View Comments
-        </button>
-
-        {this.state.showComment && (<CommentModal comment={this.state.comments}
-                                                  userId={this.context.userId}
-                                                  handleDelete={this.handleDelete}
-                                                  recall={this.getComment}
-                                                  cancel
-                                                  modalCancel={this.handleModalCancel}
-        />)}
-
 
         {
           this.context.token
@@ -283,8 +243,8 @@ class RecipePage extends Component {
         }
         {
           this.state.isLoading ? (<Spinner/>) : (
-            <RecipeList recipes={this.state.recipes} comments={this.state.comments} auth={this.context.userId}
-                        delete={this.handleDeleteRecipe}/>
+            <RecipeList recipes={this.state.recipes} auth={this.context.userId} getRecipe={this.getRecipe}
+                        getComment={this.state.comments} recallComment={this.handleGetComment} token={this.context.token}/>
           )
         }
 
